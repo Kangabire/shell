@@ -12,16 +12,24 @@ int main()
        
        fd = STDOUT_FILENO;
        
-       if (isatty(fd))
+	while (1);
 	{
-		bytes_written = write(fd, message, strlen(message));
-           
-		if (bytes_written == -1)
+		if (isatty(fd))
 		{
-			perror("ERROR");
-			return (1);
-		}
-	}
+			bytes_written = write(fd, message, strlen(message));
+           
+			if (bytes_written == -1)
+			{
+				perror("ERROR");
+				return (1);
+			}
+			if (fgets(buffer, sizeof(buffer), stdin) != NULL)
+			{
+				if (strcmp(buffer,"exit\n") == 0 || strcmp(buffer, "quit/n") == 0)
+				{
+					memset(buffer, 0, sizeof(buffer));
+				}
+			}
 
 {
         char *line = NULL;
@@ -42,7 +50,7 @@ int main()
 
         {
 		write(STDIN_FILENO, buffer, bytes_read);
-		if (strcmp(line, "exit") == 0 || strcmp(line, "quit") == 0)
+		if (strcmp(line, "exit\n") == 0 || strcmp(line, "quit\n") == 0)
 		{
 			break;
 		}
