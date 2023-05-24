@@ -1,66 +1,122 @@
-#include<string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#define BUFFER_SIZE 1024
+#include "shell.h"
 
-int main()
+/**
+ * list_len - determines the actual length of linked list
+ * @h: pointer to first node
+ *
+ * Return: the size of the list
+ */
+size_t list_len(const list_t *h)
 {
-       int fd;
-       const char* message = ":)";
-       ssize_t bytes_written;
-       char buffer[BUFFER_SIZE];
+	size_t i = 0;
 
-       fd = STDOUT_FILENO;
-       
-	while (1)
+	while (h)
 	{
-		if (isatty(fd))
-		{
-			bytes_written = write(fd, message, strlen(message));
-           
-			if (bytes_written == -1)
-			{
-				perror("ERROR");
-				return (1);
-			}
-			if (fgets(buffer, sizeof(buffer), stdin) != NULL)
-			{
-				if (strcmp(buffer,"exit\n") == 0 || strcmp(buffer, "quit\n") == 0)
-				{
-					memset(buffer, 0, sizeof(buffer));
-					break;
-				}
-			}
-
-		}
+		h = h->next;
+		i++;
 	}
+	return (i);
+}
+
+/**
+ * list_to_strings - returns an array of str of the list->str
+ * @head: pointer to first node
+ *
+ * Return: the array of the str
+ */
+char **list_to_strings(list_t *head)
+{
+	list_t *node = head;
+	size_t i = list_len(head), j;
+	char **strs;
+	char *str;
+
+	if (!head || !i)
+		return (NULL);
+	strs = malloc(sizeof(char *) * (i + 1));
+	if (!strs)
+		return (NULL);
+	for (i = 0; node; node = node->next, i++)
 	{
-		char *line = NULL;
-		size_t capacity = 0;
-		ssize_t chars_read;
-		char buffer[BUFFER_SIZE];
-		ssize_t bytes_read;
-
-		while ((chars_read = getline(&line, &capacity, stdin)) != -1)
+		str = malloc(_strlen(node->str) + 1);
+		if (!str)
 		{
-		write(STDIN_FILENO, line, chars_read);
-	       
+			for (j = 0; j < i; j++)
+				free(strs[j]);
+			free(strs);
+			return (NULL);
 		}
-        	fseek(stdin, 0, SEEK_SET);
+
+		str = _strcpy(str, node->str);
+		strs[i] = str;
+	}
+	strs[i] = NULL;
+	return (strs);
+}
 
 
-	        while ((bytes_read = read(STDIN_FILENO, buffer, BUFFER_SIZE)) > 0)
+/**
+ * print_list - prints all the elements of the same list_t linked list
+ * @h: pointer to first node
+ *
+ * Return: size of the actual list
+ */
+size_t print_list(const list_t *h)
+{
+	size_t i = 0;
 
-        	{
-			write(STDIN_FILENO, buffer, bytes_read);
-			if (strcmp(line, "exit\n") == 0 || strcmp(line, "quit\n") == 0)
-			{
-				break;
-			}
-        	}
+	while (h)
+	{
+		_puts(convert_number(h->num, 10, 0));
+		_putchar(':');
+		_putchar(' ');
+		_puts(h->str ? h->str : "(nil)");
+		_puts("\n");
+		h = h->next;
+		i++;
+	}
+	return (i);
+}
 
-		free(line);
-	}	
-		return 0;
+/**
+ * node_starts_with - returns the node whose str starts with a prefix
+ * @node: pointer to the begining of list
+ * @prefix: string to match
+ * @c: the next character after the prefix to match
+ *
+ * Return: match the node, else null
+ */
+list_t *node_starts_with(list_t *node, char *prefix, char c)
+{
+	char *p = NULL;
+
+	while (node)
+	{
+		p = starts_with(node->str, prefix);
+		if (p && ((c == -1) || (*p == c)))
+			return (node);
+		node = node->next;
+	}
+	return (NULL);
+}
+
+/**
+ * get_node_index - gets the actual index of a node
+ * @head: pointer to the begining of list
+ * @node: pointer to node
+ *
+ * Return: -1 or the index of the node
+ */
+ssize_t get_node_index(list_t *head, list_t *node)
+{
+	size_t i = 0;
+
+	while (head)
+	{
+		if (head == node)
+			return (i);
+		head = head->next;
+		i++;
+	}
+	return (-1);
 }
