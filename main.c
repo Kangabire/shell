@@ -1,11 +1,11 @@
 #include "shell.h"
 
 /**
- * main - main entry point
+ * main - entry point
  * @ac: arg counts
  * @av: arg vector
  *
- * Return: 0 on success or on error 1
+ * Return: 0 on success else on error 1
  */
 int main(int ac, char **av)
 {
